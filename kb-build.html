@@ -65,7 +65,7 @@
 
         .header {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-bottom: 1.5rem;
             gap: 1rem;
@@ -85,6 +85,10 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.05em;
+        }
+
+        .article-title {
+            margin-bottom: 2rem;
         }
 
         .header-actions {
@@ -365,10 +369,6 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="title-wrap">
-                <h1>Building kb.miin.ai</h1>
-                <p>White Paper: A Personal Knowledge Base Build</p>
-            </div>
             <div class="header-actions">
                 <a href="index.html" class="pill-btn">Back to Profile</a>
                 <a href="https://kb.miin.ai/" class="pill-btn" rel="noopener noreferrer">Open Knowledge Base</a>
@@ -379,6 +379,11 @@
         </div>
 
         <article class="card">
+            <div class="title-wrap article-title">
+                <h1>Building kb.miin.ai</h1>
+                <p>White Paper: A Personal Knowledge Base Build</p>
+            </div>
+
             <section class="summary">
                 <div class="eyebrow">Summary</div>
                 <p>
