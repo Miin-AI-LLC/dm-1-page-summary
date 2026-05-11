@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building the miin.ai Knowledge Base</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #374151;
+            --heading-color: #111827;
+            --card-bg: #ffffff;
+            --accent-color: #2563eb;
+            --border-color: #e5e7eb;
+            --muted-color: #6b7280;
+            --soft-blue: rgba(37, 99, 235, 0.08);
+            --soft-green: rgba(22, 163, 74, 0.08);
+            --soft-amber: rgba(245, 158, 11, 0.1);
+            --soft-slate: rgba(100, 116, 139, 0.1);
+            --code-bg: #111827;
+            --code-text: #e5e7eb;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --text-color: #d1d5db;
+            --heading-color: #f9fafb;
+            --card-bg: #1f2937;
+            --accent-color: #3b82f6;
+            --border-color: #374151;
+            --muted-color: #9ca3af;
+            --soft-blue: rgba(59, 130, 246, 0.14);
+            --soft-green: rgba(34, 197, 94, 0.12);
+            --soft-amber: rgba(251, 191, 36, 0.12);
+            --soft-slate: rgba(148, 163, 184, 0.12);
+            --code-bg: #030712;
+            --code-text: #f3f4f6;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 980px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .title-wrap h1 {
+            color: var(--heading-color);
+            font-size: 2rem;
+            letter-spacing: -0.025em;
+            font-weight: 800;
+        }
+
+        .title-wrap p {
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn,
+        .theme-toggle {
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.5rem;
+            outline: none;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+        }
+
+        .pill-btn:hover,
+        .pill-btn:focus-visible,
+        .theme-toggle:hover,
+        .theme-toggle:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 3.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .eyebrow {
+            color: var(--accent-color);
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+        }
+
+        h2 {
+            color: var(--heading-color);
+            font-size: 1.35rem;
+            margin-bottom: 0.75rem;
+            font-weight: 800;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+            font-weight: 750;
+        }
+
+        p {
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--accent-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .summary {
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .summary p {
+            color: var(--heading-color);
+            font-size: 1.2rem;
+            line-height: 1.75;
+            margin-bottom: 0;
+        }
+
+        .section {
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-top: 1.35rem;
+            padding: 1.5rem;
+        }
+
+        .section.blue {
+            background: var(--soft-blue);
+        }
+
+        .section.green {
+            background: var(--soft-green);
+        }
+
+        .section.amber {
+            background: var(--soft-amber);
+        }
+
+        .section.slate {
+            background: var(--soft-slate);
+        }
+
+        .stack-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .stack-card {
+            background: rgba(255, 255, 255, 0.46);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        [data-theme="dark"] .stack-card {
+            background: rgba(17, 24, 39, 0.35);
+        }
+
+        .infographic {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            display: grid;
+            gap: 0.85rem;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            margin-top: 1.25rem;
+            padding: 1rem;
+        }
+
+        .flow-node {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-height: 116px;
+            padding: 0.85rem;
+            position: relative;
+        }
+
+        .flow-node:not(:last-child)::after {
+            color: var(--accent-color);
+            content: ">";
+            font-weight: 800;
+            position: absolute;
+            right: -0.63rem;
+            top: 43%;
+        }
+
+        .flow-label {
+            color: var(--accent-color);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .flow-title {
+            color: var(--heading-color);
+            display: block;
+            font-size: 0.98rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .flow-text {
+            color: var(--muted-color);
+            display: block;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            margin-top: 0.45rem;
+        }
+
+        .steps {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .step {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 1rem;
+        }
+
+        .command-group {
+            background: var(--code-bg);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 12px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .command-title {
+            background: rgba(148, 163, 184, 0.14);
+            color: var(--code-text);
+            font-size: 0.78rem;
+            font-weight: 750;
+            letter-spacing: 0.06em;
+            padding: 0.75rem 1rem;
+            text-transform: uppercase;
+        }
+
+        pre {
+            color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 0.86rem;
+            line-height: 1.65;
+            overflow-x: auto;
+            padding: 1rem;
+            white-space: pre;
+        }
+
+        .note {
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+        }
+
+        .footer-note {
+            border-top: 1px solid var(--border-color);
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 860px) {
+            .infographic {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-node:not(:last-child)::after {
+                bottom: -0.8rem;
+                content: "v";
+                right: 50%;
+                top: auto;
+            }
+
+            .stack-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 2rem;
+            }
+
+            .title-wrap h1 {
+                font-size: 1.5rem;
+            }
+
+            .summary p {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title-wrap">
+                <h1>Building kb.miin.ai</h1>
+                <p>White Paper: A Personal Knowledge Base Build</p>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="pill-btn">Back to Profile</a>
+                <a href="https://kb.miin.ai/" class="pill-btn" rel="noopener noreferrer">Open Knowledge Base</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+
+        <article class="card">
+            <section class="summary">
+                <div class="eyebrow">Summary</div>
+                <p>
+                    I built <a href="https://kb.miin.ai/" rel="noopener noreferrer">kb.miin.ai</a> as a searchable,
+                    web-based knowledge base that turns a Google Workspace folder into a private retrieval system with
+                    semantic search, source references, OCR, spreadsheet parsing, and a clean public-facing interface.
+                    The project started as a local prototype, then moved into a production Next.js deployment on Vercel,
+                    with Supabase acting as the vector store and Gemini 2.5 Flash generating answers from retrieved
+                    excerpts. The big lesson: modern AI infrastructure is accessible if you break the build into small,
+                    testable pieces, and when in doubt, ask your favorite coding agent!
+                </p>
+            </section>
+
+            <section class="section blue">
+                <h2>Tech Stack</h2>
+                <p>
+                    The final system combines a static personal website, a dynamic knowledge-base app, Google Drive
+                    ingestion, Gemini models, and Supabase retrieval. Codex automated much of the implementation work:
+                    scaffolding the Next.js app, writing the Google Drive sync pipeline, switching from local Ollama to
+                    Gemini, shaping the Supabase schema, updating the UI, pushing code to GitHub, and helping debug
+                    deployment and authentication issues along the way.
+                </p>
+
+                <div class="infographic" aria-label="Technology stack flow infographic">
+                    <div class="flow-node">
+                        <div class="flow-label">Source</div>
+                        <span class="flow-title">Google Workspace</span>
+                        <span class="flow-text">Knowledge Base folder with PDFs, Docs, Sheets, images, and Excel files.</span>
+                    </div>
+                    <div class="flow-node">
+                        <div class="flow-label">Ingest</div>
+                        <span class="flow-title">Local Sync Script</span>
+                        <span class="flow-text">Parses files, extracts text, OCRs images, and chunks documents.</span>
+                    </div>
+                    <div class="flow-node">
+                        <div class="flow-label">Embed</div>
+                        <span class="flow-title">Gemini Embeddings</span>
+                        <span class="flow-text">Creates 768-dimension vectors for semantic matching.</span>
+                    </div>
+                    <div class="flow-node">
+                        <div class="flow-label">Retrieve</div>
+                        <span class="flow-title">Supabase pgvector</span>
+                        <span class="flow-text">Stores chunks and returns the closest matches for a user query.</span>
+                    </div>
+                    <div class="flow-node">
+                        <div class="flow-label">Answer</div>
+                        <span class="flow-title">Next.js + Gemini</span>
+                        <span class="flow-text">Vercel hosts the search UI and Gemini 2.5 Flash answers with references.</span>
+                    </div>
+                </div>
+
+                <div class="stack-grid">
+                    <div class="stack-card">
+                        <h3>Application</h3>
+                        <p>Next.js App Router, TypeScript, custom CSS, GitHub, and Vercel.</p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>Models</h3>
+                        <p>Gemini 2.5 Flash for answers and Gemini Embedding for retrieval vectors.</p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>Data Layer</h3>
+                        <p>Supabase Postgres with pgvector, document source tables, chunk tables, and RPC search.</p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>Automation</h3>
+                        <p>Codex for code generation, refactors, Git operations, local testing, and deployment support.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section green">
+                <h2>What We Built</h2>
+                <div class="steps">
+                    <div class="step">
+                        <h3>1. A Google-style search surface</h3>
+                        <p>
+                            The front end began as a minimal Google-like search page, then evolved into a branded
+                            containerized page that matches the visual language of miin.ai: dark mode, pill buttons,
+                            block-M logos, and a clean search field.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <h3>2. A retrieval-augmented answer flow</h3>
+                        <p>
+                            User questions are embedded, matched against stored document chunks in Supabase, and then
+                            passed to Gemini 2.5 Flash with only the retrieved excerpts. The response includes concise
+                            source references without exposing direct file links.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <h3>3. A local sync pipeline</h3>
+                        <p>
+                            The ingestion process runs locally against the Google Drive Knowledge Base folder. It reads
+                            Google Docs, PDFs, Word documents, Sheets, Excel files, plain text, and images. Image OCR
+                            and Excel parsing were added after the initial version so the index could cover more real
+                            workspace content.
+                        </p>
+                    </div>
+                    <div class="step">
+                        <h3>4. A production deployment</h3>
+                        <p>
+                            The personal profile remains on GitHub Pages, while the knowledge base runs as a dynamic
+                            Next.js app on Vercel at <a href="https://kb.miin.ai/" rel="noopener noreferrer">kb.miin.ai</a>.
+                            GoDaddy DNS maps the subdomain to Vercel, and Vercel reads Supabase and Gemini environment
+                            variables at runtime.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="section amber">
+                <h2>Tradeoffs We Analyzed</h2>
+                <p>
+                    The first design considered Ollama with a local Gemma model. That was attractive because it kept
+                    inference local and avoided hosted model costs, but it created production complexity: a public site
+                    would need a persistent machine capable of running the model. Moving to Gemini 2.5 Flash reduced
+                    hosting burden, simplified Vercel deployment, and made the system easier to operate.
+                </p>
+                <p>
+                    Supabase was selected as the vector store because it combines relational metadata, pgvector search,
+                    and simple server-side access. GitHub Pages was retained for the static profile site, but the
+                    knowledge base needed a dynamic runtime, so Vercel became the right fit. For Google auth, we avoided
+                    long-lived service-account JSON keys and used Application Default Credentials for local sync, which
+                    is safer but occasionally requires re-authentication.
+                </p>
+            </section>
+
+            <section class="section slate">
+                <h2>Implementation Notes</h2>
+                <p>
+                    These are the key command groups and setup steps behind the project. The exact values for secrets
+                    stay in local or hosted environment variables, not in the repository.
+                </p>
+
+                <div class="command-group">
+                    <div class="command-title">Local app setup</div>
+                    <pre><code>cd "/Volumes/Acer Dock SSD/Knowledge-Site"
+npm install
+cp .env.example .env.local</code></pre>
+                </div>
+
+                <div class="command-group">
+                    <div class="command-title">Google Drive authentication for local sync</div>
+                    <pre><code>gcloud auth application-default revoke
+gcloud auth application-default login \
+  --client-id-file="$HOME/Downloads/knowledge-site-oauth-client.json" \
+  --scopes=https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/cloud-platform</code></pre>
+                </div>
+
+                <div class="command-group">
+                    <div class="command-title">Supabase schema and content sync</div>
+                    <pre><code># Run supabase/schema.sql in the Supabase SQL editor first.
+
+npm run sync:drive
+SYNC_ONLY_MISSING=1 npm run sync:drive
+SYNC_ONLY_MISSING=1 SYNC_MAX_FILES=2 npm run sync:drive</code></pre>
+                </div>
+
+                <div class="command-group">
+                    <div class="command-title">Local testing</div>
+                    <pre><code>npm run lint
+npm run typecheck
+npm run build
+npm run dev</code></pre>
+                </div>
+
+                <div class="command-group">
+                    <div class="command-title">Deploy and link the sites</div>
+                    <pre><code>git add .
+git commit -m "Build miin.ai knowledge base app"
+git push origin main
+
+# Vercel production env vars:
+# GEMINI_API_KEY
+# SUPABASE_URL
+# SUPABASE_SERVICE_ROLE_KEY
+# GEMINI_CHAT_MODEL=gemini-2.5-flash
+# GEMINI_EMBED_MODEL=gemini-embedding-001
+# GEMINI_EMBED_DIMENSIONS=768</code></pre>
+                </div>
+
+                <p class="note">
+                    Content updates do not require a Vercel deploy. Once the app is live, syncing new files locally
+                    updates Supabase, and the production app reads the latest indexed content at query time.
+                </p>
+            </section>
+
+            <p class="footer-note">
+                This page documents a practical, agent-assisted build rather than a theoretical architecture. The
+                repeatable pattern is simple: start local, index a small batch, verify retrieval quality, deploy the
+                dynamic app, then keep the content pipeline separate from the public website.
+                <br><br>
+                Disclaimer: this summary was generated by Codex. Check for errors, cross reference with your favorite
+                coding agent or human SWE!
+            </p>
+        </article>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const currentTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? "dark" : "light");
+
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light Mode';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        });
+    </script>
+</body>
+
+</html>
