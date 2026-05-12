@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funding Readiness for Health Tech Startups</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #374151;
+            --heading-color: #111827;
+            --card-bg: #ffffff;
+            --accent-color: #2563eb;
+            --border-color: #e5e7eb;
+            --muted-color: #6b7280;
+            --soft-blue: rgba(37, 99, 235, 0.08);
+            --soft-green: rgba(22, 163, 74, 0.08);
+            --soft-amber: rgba(245, 158, 11, 0.1);
+            --soft-slate: rgba(100, 116, 139, 0.1);
+            --soft-red: rgba(220, 38, 38, 0.08);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --text-color: #d1d5db;
+            --heading-color: #f9fafb;
+            --card-bg: #1f2937;
+            --accent-color: #3b82f6;
+            --border-color: #374151;
+            --muted-color: #9ca3af;
+            --soft-blue: rgba(59, 130, 246, 0.14);
+            --soft-green: rgba(34, 197, 94, 0.12);
+            --soft-amber: rgba(251, 191, 36, 0.12);
+            --soft-slate: rgba(148, 163, 184, 0.12);
+            --soft-red: rgba(248, 113, 113, 0.1);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        html,
+        body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 980px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        .header {
+            align-items: center;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .pill-btn,
+        .theme-toggle {
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.5rem;
+            outline: none;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+        }
+
+        .pill-btn:hover,
+        .pill-btn:focus-visible,
+        .theme-toggle:hover,
+        .theme-toggle:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .page-stack {
+            display: grid;
+            gap: 1.35rem;
+            min-width: 0;
+        }
+
+        .section-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+            padding: 2rem;
+        }
+
+        .hero {
+            padding: 3.5rem;
+        }
+
+        .hero h1 {
+            color: var(--heading-color);
+            font-size: 2.45rem;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero p {
+            color: var(--accent-color);
+            font-size: 1.08rem;
+            font-weight: 650;
+            margin-bottom: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .blue {
+            background: linear-gradient(0deg, var(--soft-blue), var(--soft-blue)), var(--card-bg);
+        }
+
+        .green {
+            background: linear-gradient(0deg, var(--soft-green), var(--soft-green)), var(--card-bg);
+        }
+
+        .amber {
+            background: linear-gradient(0deg, var(--soft-amber), var(--soft-amber)), var(--card-bg);
+        }
+
+        .slate {
+            background: linear-gradient(0deg, var(--soft-slate), var(--soft-slate)), var(--card-bg);
+        }
+
+        .red {
+            background: linear-gradient(0deg, var(--soft-red), var(--soft-red)), var(--card-bg);
+        }
+
+        .eyebrow {
+            color: var(--accent-color);
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: var(--heading-color);
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            overflow-wrap: break-word;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            font-size: 1rem;
+            font-weight: 760;
+            margin-bottom: 0.35rem;
+            overflow-wrap: break-word;
+        }
+
+        p {
+            font-size: 1.03rem;
+            margin-bottom: 1rem;
+            overflow-wrap: break-word;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        a {
+            color: var(--accent-color);
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .tips-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1.2rem;
+            min-width: 0;
+        }
+
+        .tip-card {
+            background: rgba(255, 255, 255, 0.52);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.15rem;
+        }
+
+        [data-theme="dark"] .tip-card {
+            background: rgba(17, 24, 39, 0.35);
+        }
+
+        .checklist-intro {
+            align-items: center;
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .download-link {
+            white-space: nowrap;
+        }
+
+        .accordion {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        details {
+            border: 1px solid var(--border-color);
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        summary {
+            align-items: center;
+            color: var(--heading-color);
+            cursor: pointer;
+            display: flex;
+            font-weight: 800;
+            justify-content: space-between;
+            list-style: none;
+            min-width: 0;
+            overflow-wrap: break-word;
+            padding: 1rem 1.1rem;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+        }
+
+        summary::after {
+            color: var(--accent-color);
+            content: "+";
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-left: 1rem;
+        }
+
+        details[open] summary::after {
+            content: "-";
+        }
+
+        .shade-1 summary {
+            background: rgba(37, 99, 235, 0.12);
+        }
+
+        .shade-2 summary {
+            background: rgba(22, 163, 74, 0.12);
+        }
+
+        .shade-3 summary {
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .shade-4 summary {
+            background: rgba(100, 116, 139, 0.14);
+        }
+
+        .shade-5 summary {
+            background: rgba(14, 165, 233, 0.12);
+        }
+
+        .shade-6 summary {
+            background: rgba(168, 85, 247, 0.12);
+        }
+
+        .shade-7 summary {
+            background: rgba(236, 72, 153, 0.11);
+        }
+
+        .shade-8 summary {
+            background: rgba(20, 184, 166, 0.12);
+        }
+
+        .checklist-items {
+            background: rgba(255, 255, 255, 0.36);
+            padding: 1rem 1.1rem 1.1rem;
+        }
+
+        [data-theme="dark"] .checklist-items {
+            background: rgba(17, 24, 39, 0.28);
+        }
+
+        .checklist-items li {
+            margin-left: 1.2rem;
+            padding-left: 0.25rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .proof-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1.2rem;
+            min-width: 0;
+        }
+
+        .proof-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.15rem;
+        }
+
+        [data-theme="dark"] .proof-card {
+            background: rgba(17, 24, 39, 0.35);
+        }
+
+        .tombstone-wrap {
+            margin-top: 1.3rem;
+        }
+
+        .tombstone-viewport {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            margin-top: 0.9rem;
+            max-width: 100%;
+            min-width: 0;
+            overflow: hidden;
+            padding: 1rem 0;
+            position: relative;
+        }
+
+        .tombstone-track {
+            animation: tombstone-scroll 95s linear infinite;
+            display: flex;
+            gap: 1rem;
+            width: max-content;
+        }
+
+        .tombstone-viewport:hover .tombstone-track {
+            animation-play-state: paused;
+        }
+
+        .tombstone-card {
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            flex: 0 0 210px;
+            min-height: 142px;
+            padding: 0.55rem;
+        }
+
+        .tombstone-card img {
+            border-radius: 8px;
+            display: block;
+            height: auto;
+            width: 100%;
+        }
+
+        @keyframes tombstone-scroll {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(-50%);
+            }
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            color: var(--text-color);
+            padding: 0.45rem 0.9rem;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        @media (max-width: 760px) {
+            body {
+                padding: 1rem;
+            }
+
+            .hero,
+            .section-card {
+                padding: 2rem;
+            }
+
+            .hero h1 {
+                font-size: 1.85rem;
+            }
+
+            .tips-grid,
+            .proof-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tombstone-card {
+                flex-basis: 180px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="pill-btn">Back to Profile</a>
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+
+        <main class="page-stack">
+            <header class="section-card hero blue">
+                <h1>Funding Readiness for Health Tech Startups</h1>
+                <p>Practical, non-prescriptive tips for navigating due diligence and the capital markets.</p>
+            </header>
+
+            <section class="section-card slate" id="intro">
+                <div class="eyebrow">The Due Diligence Mindset</div>
+                <h2>Preparation is part of the product story</h2>
+                <p>
+                    Building a great health tech product is only half the battle. When it comes time to raise capital,
+                    the friction often lies in the diligence process. Being prepared does not just accelerate funding;
+                    it protects your valuation.
+                </p>
+                <p>
+                    This is not just about checking boxes. It is about demonstrating operational maturity to
+                    institutional investors and giving them confidence that the company can handle the scrutiny that
+                    follows serious capital formation.
+                </p>
+            </section>
+
+            <section class="section-card green" id="tips">
+                <div class="eyebrow">Practical Tips</div>
+                <h2>Funding prep that reduces avoidable friction</h2>
+                <div class="tips-grid">
+                    <article class="tip-card">
+                        <h3>Corporate &amp; Legal Hygiene</h3>
+                        <p>
+                            Do not wait for a term sheet to build your data room. Ensure your cap table is spotless, IP
+                            assignments are finalized, and key employment agreements are signed.
+                        </p>
+                    </article>
+                    <article class="tip-card">
+                        <h3>Financial Clarity</h3>
+                        <p>
+                            Institutional investors require a clear bridge from historical financials to future
+                            projections. Ensure your financial models are tied to realistic, defendable operating
+                            metrics.
+                        </p>
+                    </article>
+                    <article class="tip-card">
+                        <h3>Regulatory &amp; Compliance Roadmap</h3>
+                        <p>
+                            In health tech, your regulatory strategy is an investment gatekeeper. Be prepared to clearly
+                            articulate your FDA pathways, HIPAA compliance architecture, and data privacy moats.
+                        </p>
+                    </article>
+                    <article class="tip-card">
+                        <h3>Fiduciary Governance</h3>
+                        <p>
+                            Showing maturity early on pays dividends. Building a strong advisory board or having
+                            independent voices demonstrates that founders are open to guidance and fiduciary oversight.
+                        </p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="section-card amber" id="checklist">
+                <div class="checklist-intro">
+                    <div>
+                        <div class="eyebrow">Sample Early Stage Startup Due Diligence Checklist</div>
+                        <h2>Start with good bones</h2>
+                    </div>
+                    <a class="pill-btn download-link" href="assets/mentoring-founders/representative_dd_checklist.xlsx" download>
+                        Download Excel Checklist
+                    </a>
+                </div>
+                <p>
+                    As an early stage startup, key diligence items focus on proper legal and business setup, making sure
+                    the company has good bones. The sections below reflect this. As your company grows and matures, other
+                    topics become more relevant, including tech stack, products and services, sales and marketing, taxes,
+                    regulatory strategy, and other operating details.
+                </p>
+
+                <div class="accordion">
+                    <details class="shade-1">
+                        <summary>I. Corporate Matters</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>The Company's certificate of incorporation and bylaws, including any amendments.</li>
+                            <li>Minutes or other records of all meetings or actions of the board of directors, including any board committees, and the Company's shareholders.</li>
+                            <li>All written communications to directors or shareholders during the last three years.</li>
+                            <li>Evidence of qualification to conduct business in all jurisdictions in which the Company is or should be qualified to do business, has an office or employees, or is otherwise operating.</li>
+                            <li>Most recent business plan and all offering memoranda prepared in connection with financings, if any.</li>
+                            <li>Organizational chart of the Company, which details branches, subsidiaries and any other ownership interest in another company or entity.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-2">
+                        <summary>II. Capitalization</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>A current list of shareholders, option holders, warrant holders and other persons that own securities of the Company or that have any rights regarding the securities of the Company, including holders of convertible notes, by type of security and on an as-converted basis.</li>
+                            <li>Copies of all certificates, warrants, notes, etc., representing all issued securities of the Company.</li>
+                            <li>Transaction documents from the Company's previous equity financings, including exhibits and disclosure schedules.</li>
+                            <li>Agreements, offering memoranda and other materials relating to the purchase, repurchase, sale or issuance of securities.</li>
+                            <li>Agreements relating to voting, transfer restrictions, preemptive or preferential rights, registration rights and other stockholder rights.</li>
+                            <li>Information about claims made by any person asserting a right to an equity interest in the Company.</li>
+                            <li>Evidence of qualification or exemption under applicable federal and state securities laws for all issuances and transfers of Company securities.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-3">
+                        <summary>III. Intellectual Property</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>A list of all patents, trademarks, copyrights, applications, service marks, trade names, domain names, trade secrets, licenses, processes, technology and similar proprietary rights owned or licensed by the Company or used in its business.</li>
+                            <li>Any licenses or other agreements with respect to proprietary rights of the Company or third parties, or the development of inventions, technology or intellectual property.</li>
+                            <li>A list of third-party technology incorporated in the Company's products and services.</li>
+                            <li>Form of proprietary information and invention agreements signed by past and present employees and consultants, plus executed agreements for founders, key employees and consultants.</li>
+                            <li>List of exclusions from proprietary information and invention agreements, if any, including the name of the applicable service provider.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-4">
+                        <summary>IV. Financials</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>Detailed quarterly financial statements for each quarter in the past three fiscal years and most recent year-to-date period.</li>
+                            <li>Monthly or quarterly internal financial and operational management reporting packages for the past three fiscal years and year-to-date period.</li>
+                            <li>Detailed quarterly budgeted, planned or forecast financial statements for the remainder of the year-to-date period and next three fiscal years.</li>
+                            <li>Description of the process and methodology used to develop the forecast or projection.</li>
+                            <li>Comparison and reconciliation of actual results to budget for the last three years and commentary on significant variances.</li>
+                            <li>Details of financial instruments, off-balance sheet financing arrangements or other transactions not reflected on the financial statements.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-5">
+                        <summary>V. Management, Employees and Consultants</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>A list of officers and directors, including whether any officer is not devoting all business time to the Company.</li>
+                            <li>A copy of the Company's standard offer letter.</li>
+                            <li>Agreements, understandings or proposed transactions between the Company and officers, directors, employees, consultants or shareholders.</li>
+                            <li>Headcount by department and location, if any, and description of planned changes in headcount or compensation practices.</li>
+                            <li>Employee benefit plans and arrangements, including bonus, retirement, pension, deferred compensation, profit sharing and management incentive arrangements.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-6">
+                        <summary>VI. Legal and Regulatory</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>Documents and correspondence relating to pending or threatened actions, suits, proceedings or investigations involving the Company, executive officers or directors.</li>
+                            <li>Any orders, injunctions, judgments, decrees, settlement agreements or similar matters.</li>
+                            <li>Significant permits, licenses and similar authorizations relevant to the operation of the Company's business.</li>
+                            <li>Other correspondence with governmental or regulatory authorities, including tax audits, investigations, disputes, deficiencies, penalties and environmental matters.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-7">
+                        <summary>VII. Agreements</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>Documents or agreements evidencing existing or proposed indebtedness or other financing arrangements, plus material lender or debtholder correspondence.</li>
+                            <li>Form material contracts with suppliers or customers, or otherwise related to the sales channel, and any material contracts that do not follow the form.</li>
+                            <li>List of top 15 customers and suppliers for the Company as a whole, with applicable agreements governing such relationships.</li>
+                            <li>Copies of agreements relating to contingent sales to customers or trial arrangements with potential customers.</li>
+                            <li>Joint venture or partnership agreements.</li>
+                            <li>Documents relating to any proposed acquisitions or dispositions.</li>
+                            <li>Contracts restricting the Company's ability to compete, committing the Company to a line of business, or confidentiality and nondisclosure agreements binding the Company.</li>
+                            <li>Agreements requiring consents or approvals in connection with the financing.</li>
+                            <li>Any arrangements with a broker or finder in connection with this or other financings.</li>
+                            <li>Agreements involving amounts in excess of $25,000.</li>
+                            <li>Other agreements material to the business, outside the ordinary course of business, or not at arms-length.</li>
+                            <li>Notices of breach or default under any material agreement.</li>
+                        </ol>
+                    </details>
+                    <details class="shade-8">
+                        <summary>VIII. Other</summary>
+                        <ol class="checklist-items" type="A">
+                            <li>Reports or studies prepared by the Company or outside consultants on the Company's business or financial condition, including valuation reports.</li>
+                            <li>Summary of insurance policies held for the benefit of the Company, directors, officers or employees, and a summary of claims under those policies.</li>
+                            <li>Any other information important to understanding the Company, financial condition, financial performance, prospects, products or industry.</li>
+                        </ol>
+                    </details>
+                </div>
+            </section>
+
+            <section class="section-card blue" id="experience">
+                <div class="eyebrow">Grounded in Reality</div>
+                <h2>Experience at the intersection of tech and finance</h2>
+                <div class="proof-grid">
+                    <article class="proof-card">
+                        <h3>The Intersection of Tech &amp; Finance</h3>
+                        <p>This guidance is rooted in over 20 years of experience bridging technical engineering and high-stakes financial strategy.</p>
+                    </article>
+                    <article class="proof-card">
+                        <h3>Transaction Pedigree</h3>
+                        <p>Drawn from executing over $15 billion in total transaction value across M&amp;A, IPOs, and debt/equity financings.</p>
+                    </article>
+                    <article class="proof-card">
+                        <h3>Representative Transactions</h3>
+                        <p>A broad set of health tech, medical device, healthcare services, software, real estate and corporate finance transaction experience.</p>
+                    </article>
+                    <article class="proof-card">
+                        <h3>Operational Empathy</h3>
+                        <p>Perspective from driving growth as VP of Corporate Development at Elekta, advising CareShield AI, Vigilant Software and morriganAI, and currently building as Co-Founder of Operis Health AI.</p>
+                    </article>
+                </div>
+
+                <div class="tombstone-wrap">
+                    <h3>Representative Transactions</h3>
+                    <p>Hover over the list to pause the scroll.</p>
+                    <div class="tombstone-viewport" aria-label="Scrolling representative transaction tombstones">
+                        <div class="tombstone-track" id="tombstone-track">
+                            <div class="tombstone-card"><img src="assets/tombstones/01_Vigilant_Software_2026.png" alt="Vigilant Software 2026 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/02_Elekta_2022.png" alt="Elekta 2022 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/03_Elekta_2021.png" alt="Elekta 2021 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/04_Elekta_2020.png" alt="Elekta 2020 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/05_Elekta_2020.png" alt="Elekta 2020 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/06_Eximo_Medical_2019.png" alt="Eximo Medical 2019 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/07_Endospan_2019.png" alt="Endospan 2019 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/08_Brightwater_Medical_2019.png" alt="Brightwater Medical 2019 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/09_Vascular_Insight_2018.png" alt="Vascular Insight 2018 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/10_Cole_Parmer_2017.png" alt="Cole Parmer 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/11_Professional_Physical_Therapy_2016.png" alt="Professional Physical Therapy 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/12_Laborie_Medical_Technologies_2016.png" alt="Laborie Medical Technologies 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/13_Arsenal_Capital_Partner_2016.png" alt="Arsenal Capital Partner 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/14_Resolute_Anesthesia_and_Pain_Solutions_2016.png" alt="Resolute Anesthesia and Pain Solutions 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/15_Vectra_Management_Group_2014.png" alt="Vectra Management Group 2014 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/16_Area_Property_Partner_2013.png" alt="Area Property Partner 2013 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/17_DTH_Capital_2013.png" alt="DTH Capital 2013 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/18_Gem_Realty_Capital_The_Whitehall_Fund_2012.png" alt="Gem Realty Capital The Whitehall Fund 2012 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/19_Situs_Holding_2012.png" alt="Situs Holding 2012 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/20_Bank_of_America_2011.png" alt="Bank of America 2011 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/21_Accor_North_America_2012.png" alt="Accor North America 2012 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/22_Care_Investment_Trust_2010.png" alt="Care Investment Trust 2010 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/23_Wyndham_Worldwide_2010.png" alt="Wyndham Worldwide 2010 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/24_Micro_Linear_Corp_2006.png" alt="Micro Linear Corp 2006 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/25_Brainsway_2019.png" alt="Brainsway 2019 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/26_Helius_Medical_2018.png" alt="Helius Medical 2018 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/27_Valeritas_2018.png" alt="Valeritas 2018 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/28_Abeona_Therapeutics_2017.png" alt="Abeona Therapeutics 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/29_Dova_Pharmaceuticals_2017.png" alt="Dova Pharmaceuticals 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/30_Urogen_Pharma_2017.png" alt="Urogen Pharma 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/31_Abeona_Therapeutics_2016.png" alt="Abeona Therapeutics 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/32_Amsurg_Corp_2015.png" alt="Amsurg Corp 2015 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/33_Kushner_Company_2012.png" alt="Kushner Company 2012 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/34_Beazer_Homes_2010.png" alt="Beazer Homes 2010 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/35_PS_Business_Park_2009.png" alt="PS Business Park 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/36_HCP_2009.png" alt="HCP 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/37_HCP_2009.png" alt="HCP 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/38_HCP_2008.png" alt="HCP 2008 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/39_Washington_REIT_2008.png" alt="Washington REIT 2008 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/40_HCP_2008.png" alt="HCP 2008 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/41_Sterigenics_Nordion_Holding_2017.png" alt="Sterigenics Nordion Holding 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/42_Golden_Gate_Capital_2017.png" alt="Golden Gate Capital 2017 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/43_Sterigenics_Nordion_Topco_2016.png" alt="Sterigenics Nordion Topco 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/44_Partners_Group_2016.png" alt="Partners Group 2016 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/45_Blackstone_Emdeon_2015.png" alt="Blackstone Emdeon 2015 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/46_Blackstone_Emdeon_2015.png" alt="Blackstone Emdeon 2015 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/47_Beazer_Homes_2010.png" alt="Beazer Homes 2010 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/48_Wyndham_Worldwide_2010.png" alt="Wyndham Worldwide 2010 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/49_Wyndham_Worldwide_2009.png" alt="Wyndham Worldwide 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/50_Wyndham_Worldwide_2009.png" alt="Wyndham Worldwide 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/51_Simon_Property_Group_2009.png" alt="Simon Property Group 2009 tombstone" loading="lazy"></div>
+                            <div class="tombstone-card"><img src="assets/tombstones/52_HCP_2007.png" alt="HCP 2007 tombstone" loading="lazy"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="section-card red">
+                <div class="eyebrow">Disclaimers</div>
+                <p>This content is for informational purposes only and does not constitute financial, legal, or investment advice.</p>
+                <p>
+                    For financial advice, start with <a href="https://stepmark.ai/" rel="noopener noreferrer">Jay</a>
+                    or <a href="https://www.maximgrp.com/divisions/investment-banking" rel="noopener noreferrer">Doug</a>.
+                    For legal advice, start with <a href="https://www.omm.com/professionals/wenting-yu/" rel="noopener noreferrer">Wenting</a>.
+                </p>
+                <div class="footer-links">
+                    <a href="https://linkedin.com/in/danielmiin" rel="noopener noreferrer">Want to connect?</a>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const currentTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? "dark" : "light");
+
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light Mode';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        });
+
+        const tombstoneTrack = document.getElementById('tombstone-track');
+        if (tombstoneTrack) {
+            const cards = Array.from(tombstoneTrack.children);
+            cards.forEach((card) => {
+                const clone = card.cloneNode(true);
+                clone.setAttribute('aria-hidden', 'true');
+                tombstoneTrack.appendChild(clone);
+            });
+        }
+    </script>
+</body>
+
+</html>
