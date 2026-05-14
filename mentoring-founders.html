@@ -724,9 +724,39 @@
         const toggleBtn = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
         const themeText = document.getElementById('theme-text');
+        const themeKey = 'theme';
+
+        function isTheme(value) {
+            return value === 'light' || value === 'dark';
+        }
+
+        function getThemeCookie() {
+            const match = document.cookie.split('; ').find((row) => row.startsWith(`${themeKey}=`));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        function setThemeCookie(theme) {
+            const oneYear = 60 * 60 * 24 * 365;
+            const baseCookie = `${themeKey}=${encodeURIComponent(theme)}; Max-Age=${oneYear}; Path=/; SameSite=Lax`;
+            const hostname = window.location.hostname;
+            const canShareAcrossSubdomains = hostname === 'miin.ai' || hostname.endsWith('.miin.ai');
+            document.cookie = canShareAcrossSubdomains ? `${baseCookie}; Domain=.miin.ai` : baseCookie;
+        }
+
+        function getSavedTheme() {
+            const cookieTheme = getThemeCookie();
+            const localTheme = localStorage.getItem(themeKey);
+            return isTheme(cookieTheme) ? cookieTheme : isTheme(localTheme) ? localTheme : null;
+        }
+
+        function saveTheme(theme) {
+            localStorage.setItem(themeKey, theme);
+            setThemeCookie(theme);
+        }
 
         const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-        const currentTheme = localStorage.getItem('theme') || (prefersDarkScheme.matches ? "dark" : "light");
+        const currentTheme = getSavedTheme() || (prefersDarkScheme.matches ? "dark" : "light");
+        saveTheme(currentTheme);
 
         if (currentTheme === "dark") {
             document.documentElement.setAttribute("data-theme", "dark");
@@ -739,7 +769,7 @@
             const newTheme = theme === 'dark' ? 'light' : 'dark';
 
             document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
+            saveTheme(newTheme);
 
             if (newTheme === 'dark') {
                 themeIcon.textContent = '☀️';
