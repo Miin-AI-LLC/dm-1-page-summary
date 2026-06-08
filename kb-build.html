@@ -391,8 +391,9 @@
                     I built <a href="https://kb.miin.ai/" rel="noopener noreferrer">kb.miin.ai</a> as a searchable,
                     web-based knowledge base that turns a Google Workspace folder into a private retrieval system with
                     semantic search, source references, OCR, spreadsheet parsing, and a clean public-facing interface.
-                    The project started as a local prototype, then moved into a production Next.js deployment on Vercel,
-                    with Supabase acting as the vector store and Gemini 2.5 Flash generating answers from retrieved
+                    The project started as a local prototype, moved through a Vercel and Supabase production version,
+                    and now uses Firebase as the Google-native home for hosting, backend functions, document data,
+                    vector retrieval, and deployment operations. Gemini 2.5 Flash generates answers from retrieved
                     excerpts. The big lesson: modern AI infrastructure is accessible if you break the build into small,
                     testable pieces, and when in doubt, ask your favorite coding agent!
                 </p>
@@ -401,11 +402,12 @@
             <section class="section blue">
                 <h2>Tech Stack</h2>
                 <p>
-                    The final system combines a static personal website, a dynamic knowledge-base app, Google Drive
-                    ingestion, Gemini models, and Supabase retrieval. Codex automated much of the implementation work:
+                    The current system combines a static personal website, a Firebase-backed knowledge-base app,
+                    Google Drive ingestion, Gemini models, and Firestore retrieval. Codex automated much of the
+                    implementation work:
                     scaffolding the Next.js app, writing the Google Drive sync pipeline, switching from local Ollama to
-                    Gemini, shaping the Supabase schema, updating the UI, pushing code to GitHub, and helping debug
-                    deployment and authentication issues along the way.
+                    Gemini, migrating the data layer from Supabase to Firebase, updating the UI, pushing code to
+                    GitHub, and helping debug deployment and authentication issues along the way.
                 </p>
 
                 <div class="infographic" aria-label="Technology stack flow infographic">
@@ -426,20 +428,20 @@
                     </div>
                     <div class="flow-node">
                         <div class="flow-label">Retrieve</div>
-                        <span class="flow-title">Supabase pgvector</span>
-                        <span class="flow-text">Stores chunks and returns the closest matches for a user query.</span>
+                        <span class="flow-title">Firebase Firestore</span>
+                        <span class="flow-text">Stores chunks, metadata, embeddings, and vector-search results.</span>
                     </div>
                     <div class="flow-node">
                         <div class="flow-label">Answer</div>
-                        <span class="flow-title">Next.js + Gemini</span>
-                        <span class="flow-text">Vercel hosts the search UI and Gemini 2.5 Flash answers with references.</span>
+                        <span class="flow-title">Firebase + Gemini</span>
+                        <span class="flow-text">Firebase serves the app and Gemini 2.5 Flash answers with references.</span>
                     </div>
                 </div>
 
                 <div class="stack-grid">
                     <div class="stack-card">
                         <h3>Application</h3>
-                        <p>Next.js App Router, TypeScript, custom CSS, GitHub, and Vercel.</p>
+                        <p>Next.js App Router, TypeScript, custom CSS, GitHub, and Firebase Hosting or App Hosting.</p>
                     </div>
                     <div class="stack-card">
                         <h3>Models</h3>
@@ -447,7 +449,7 @@
                     </div>
                     <div class="stack-card">
                         <h3>Data Layer</h3>
-                        <p>Supabase Postgres with pgvector, document source tables, chunk tables, and RPC search.</p>
+                        <p>Firebase Firestore document collections for sources, chunks, metadata, embeddings, and vector indexes.</p>
                     </div>
                     <div class="stack-card">
                         <h3>Automation</h3>
@@ -470,7 +472,7 @@
                     <div class="step">
                         <h3>2. A retrieval-augmented answer flow</h3>
                         <p>
-                            User questions are embedded, matched against stored document chunks in Supabase, and then
+                            User questions are embedded, matched against stored document chunks in Firebase, and then
                             passed to Gemini 2.5 Flash with only the retrieved excerpts. The response includes concise
                             source references without exposing direct file links.
                         </p>
@@ -488,9 +490,9 @@
                         <h3>4. A production deployment</h3>
                         <p>
                             The personal profile remains on GitHub Pages, while the knowledge base runs as a dynamic
-                            Next.js app on Vercel at <a href="https://kb.miin.ai/" rel="noopener noreferrer">kb.miin.ai</a>.
-                            GoDaddy DNS maps the subdomain to Vercel, and Vercel reads Supabase and Gemini environment
-                            variables at runtime.
+                            Firebase-backed app at <a href="https://kb.miin.ai/" rel="noopener noreferrer">kb.miin.ai</a>.
+                            GoDaddy DNS maps the subdomain to Firebase, and the runtime reads Firebase and Gemini
+                            configuration without exposing secrets in the repository.
                         </p>
                     </div>
                 </div>
@@ -502,15 +504,74 @@
                     The first design considered Ollama with a local Gemma model. That was attractive because it kept
                     inference local and avoided hosted model costs, but it created production complexity: a public site
                     would need a persistent machine capable of running the model. Moving to Gemini 2.5 Flash reduced
-                    hosting burden, simplified Vercel deployment, and made the system easier to operate.
+                    hosting burden and made the system easier to operate.
                 </p>
                 <p>
-                    Supabase was selected as the vector store because it combines relational metadata, pgvector search,
-                    and simple server-side access. GitHub Pages was retained for the static profile site, but the
-                    knowledge base needed a dynamic runtime, so Vercel became the right fit. For Google auth, we avoided
-                    long-lived service-account JSON keys and used Application Default Credentials for local sync, which
-                    is safer but occasionally requires re-authentication.
+                    The first hosted version used Vercel for the dynamic Next.js runtime and Supabase for Postgres plus
+                    pgvector. That was a strong developer stack, but it split the system across multiple vendors. The
+                    Firebase migration trades some SQL flexibility for simpler operations, closer alignment with Google
+                    Workspace and Gemini, and a clearer path to private access controls.
                 </p>
+                <p>
+                    For Google auth, we avoided long-lived service-account JSON keys and used Application Default
+                    Credentials for local sync, which is safer but occasionally requires re-authentication.
+                </p>
+            </section>
+
+            <section class="section green">
+                <h2>Current Firebase Architecture</h2>
+                <p>
+                    After the Vercel and Supabase version was working, the architecture moved into Firebase. The current
+                    direction keeps the knowledge base close to Google Workspace and Gemini while letting Firebase own
+                    hosting, server code, document storage, vector retrieval, secrets, previews, monitoring, and billing
+                    under the same Google project.
+                </p>
+
+                <div class="stack-grid">
+                    <div class="stack-card">
+                        <h3>What Vercel + Supabase did well</h3>
+                        <p>
+                            Vercel made the Next.js deployment path fast, and Supabase gave the app Postgres, pgvector,
+                            SQL inspection, and RPC search in a very direct package. That stack is flexible and familiar
+                            for relational data.
+                        </p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>What pushed the move</h3>
+                        <p>
+                            The split stack required more vendor boundaries, environment variables, service-role
+                            handling, logs, dashboards, and deployment surfaces. Firebase reduces that operational
+                            spread for a small, personal knowledge product.
+                        </p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>What Firebase improves</h3>
+                        <p>
+                            Firebase keeps the app close to Google auth patterns, Cloud Functions or App Hosting,
+                            Firestore document data, vector indexes, and the existing Gemini workflow. It also creates a
+                            cleaner path for future private access and user-aware permissions.
+                        </p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>What Firebase costs</h3>
+                        <p>
+                            The migration trades away plain Postgres ergonomics and requires reshaping chunk metadata
+                            into Firestore documents, rebuilding vector indexes, and watching read and function costs.
+                            It also deepens commitment to the Google ecosystem.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="steps">
+                    <div class="step">
+                        <h3>Final call</h3>
+                        <p>
+                            Firebase won because this knowledge base values low-ops maintenance, Google-native
+                            integration, and a coherent deployment story more than the extra SQL flexibility Supabase
+                            provides. For this use case, simpler ownership beat a more modular architecture.
+                        </p>
+                    </div>
+                </div>
             </section>
 
             <section class="section slate">
@@ -536,8 +597,8 @@ gcloud auth application-default login \
                 </div>
 
                 <div class="command-group">
-                    <div class="command-title">Supabase schema and content sync</div>
-                    <pre><code># Run supabase/schema.sql in the Supabase SQL editor first.
+                    <div class="command-title">Firebase content sync</div>
+                    <pre><code># Configure the Firebase project, Firestore collections, and vector indexes first.
 
 npm run sync:drive
 SYNC_ONLY_MISSING=1 npm run sync:drive
@@ -558,18 +619,22 @@ npm run dev</code></pre>
 git commit -m "Build your-domain knowledge base app"
 git push origin main
 
-# Vercel production env vars:
+# Firebase App Hosting can roll out from the connected GitHub repo.
+# For CLI-managed Hosting or Functions deployments:
+firebase deploy --only hosting,functions
+
+# Firebase production config:
 # GEMINI_API_KEY
-# SUPABASE_URL
-# SUPABASE_SERVICE_ROLE_KEY
+# FIREBASE_PROJECT_ID
+# GOOGLE_APPLICATION_CREDENTIALS for local sync only, if needed
 # GEMINI_CHAT_MODEL=gemini-2.5-flash
 # GEMINI_EMBED_MODEL=gemini-embedding-001
 # GEMINI_EMBED_DIMENSIONS=768</code></pre>
                 </div>
 
                 <p class="note">
-                    Content updates do not require a Vercel deploy. Once the app is live, syncing new files locally
-                    updates Supabase, and the production app reads the latest indexed content at query time.
+                    Content updates do not require a redeploy. Once the app is live, syncing new files locally updates
+                    Firebase, and the production app reads the latest indexed content at query time.
                 </p>
             </section>
 
