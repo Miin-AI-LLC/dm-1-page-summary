@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Intelligent AI Pip for Corebound</title>
+    <style>
+        :root {
+            --bg-color: #f4f7fb;
+            --text-color: #334155;
+            --heading-color: #0f172a;
+            --card-bg: #ffffff;
+            --accent-color: #0891b2;
+            --accent-strong: #0e7490;
+            --border-color: #dbe5ee;
+            --muted-color: #64748b;
+            --soft-cyan: rgba(8, 145, 178, 0.1);
+            --soft-blue: rgba(37, 99, 235, 0.08);
+            --soft-violet: rgba(124, 58, 237, 0.09);
+            --soft-emerald: rgba(16, 185, 129, 0.1);
+            --soft-slate: rgba(100, 116, 139, 0.1);
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --shadow: 0 18px 42px rgba(15, 23, 42, 0.13);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #020617;
+            --text-color: #cbd5e1;
+            --heading-color: #f8fafc;
+            --card-bg: #0f172a;
+            --accent-color: #22d3ee;
+            --accent-strong: #67e8f9;
+            --border-color: #1e293b;
+            --muted-color: #94a3b8;
+            --soft-cyan: rgba(34, 211, 238, 0.13);
+            --soft-blue: rgba(59, 130, 246, 0.13);
+            --soft-violet: rgba(167, 139, 250, 0.13);
+            --soft-emerald: rgba(52, 211, 153, 0.12);
+            --soft-slate: rgba(148, 163, 184, 0.12);
+            --code-bg: #020617;
+            --code-text: #f8fafc;
+            --shadow: 0 20px 46px rgba(0, 0, 0, 0.42);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(34, 211, 238, 0.16), transparent 34rem),
+                radial-gradient(circle at top right, rgba(124, 58, 237, 0.12), transparent 28rem),
+                var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            justify-content: center;
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 980px;
+            width: 100%;
+        }
+
+        .header {
+            align-items: center;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .pill-btn,
+        .theme-toggle {
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            cursor: pointer;
+            display: flex;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.5rem;
+            outline: none;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+        }
+
+        .pill-btn:hover,
+        .pill-btn:focus-visible,
+        .theme-toggle:hover,
+        .theme-toggle:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .hero {
+            background:
+                linear-gradient(135deg, rgba(8, 145, 178, 0.18), rgba(124, 58, 237, 0.12)),
+                var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3.25rem 3.5rem 2.75rem;
+        }
+
+        .article-body {
+            padding: 0 3.5rem 3.5rem;
+        }
+
+        .title-wrap h1 {
+            color: var(--heading-color);
+            font-size: clamp(2rem, 5vw, 3.4rem);
+            font-weight: 850;
+            letter-spacing: -0.045em;
+            line-height: 1.05;
+            max-width: 780px;
+        }
+
+        .title-wrap p {
+            color: var(--accent-strong);
+            font-size: 0.95rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .summary {
+            margin-top: 1.6rem;
+            max-width: 810px;
+        }
+
+        .summary p {
+            color: var(--heading-color);
+            font-size: 1.18rem;
+            line-height: 1.75;
+            margin-bottom: 0;
+        }
+
+        .eyebrow {
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            font-weight: 850;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: var(--heading-color);
+            font-size: 1.35rem;
+            font-weight: 850;
+            margin-bottom: 0.75rem;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            font-size: 1rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        p {
+            font-size: 1.04rem;
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-top: 1.35rem;
+            padding: 1.5rem;
+        }
+
+        .section.cyan {
+            background: var(--soft-cyan);
+        }
+
+        .section.blue {
+            background: var(--soft-blue);
+        }
+
+        .section.violet {
+            background: var(--soft-violet);
+        }
+
+        .section.emerald {
+            background: var(--soft-emerald);
+        }
+
+        .section.slate {
+            background: var(--soft-slate);
+        }
+
+        .infographic {
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            display: grid;
+            gap: 0.85rem;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            margin-top: 1.25rem;
+            padding: 1rem;
+        }
+
+        .flow-node {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-height: 132px;
+            padding: 0.85rem;
+            position: relative;
+        }
+
+        .flow-node:not(:last-child)::after {
+            color: var(--accent-color);
+            content: ">";
+            font-weight: 850;
+            position: absolute;
+            right: -0.63rem;
+            top: 44%;
+        }
+
+        .flow-label {
+            color: var(--accent-color);
+            font-size: 0.72rem;
+            font-weight: 850;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .flow-title {
+            color: var(--heading-color);
+            display: block;
+            font-size: 0.96rem;
+            font-weight: 850;
+            line-height: 1.3;
+        }
+
+        .flow-text {
+            color: var(--muted-color);
+            display: block;
+            font-size: 0.81rem;
+            line-height: 1.45;
+            margin-top: 0.45rem;
+        }
+
+        .stack-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .stack-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        [data-theme="dark"] .stack-card {
+            background: rgba(2, 6, 23, 0.38);
+        }
+
+        .steps {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .step {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 1rem;
+        }
+
+        .comparison {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .before-after {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.2rem;
+        }
+
+        .command-group {
+            background: var(--code-bg);
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 12px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .command-title {
+            background: rgba(148, 163, 184, 0.14);
+            color: var(--code-text);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 0.75rem 1rem;
+            text-transform: uppercase;
+        }
+
+        pre {
+            color: var(--code-text);
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+            font-size: 0.84rem;
+            line-height: 1.65;
+            overflow-x: auto;
+            padding: 1rem;
+            white-space: pre;
+        }
+
+        .note,
+        .footer-note {
+            color: var(--muted-color);
+            font-size: 0.95rem;
+        }
+
+        .footer-note {
+            border-top: 1px solid var(--border-color);
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 860px) {
+            .infographic,
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .flow-node:not(:last-child)::after {
+                bottom: -0.8rem;
+                content: "v";
+                right: 50%;
+                top: auto;
+            }
+
+            .stack-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .hero,
+            .article-body {
+                padding-left: 1.35rem;
+                padding-right: 1.35rem;
+            }
+
+            .hero {
+                padding-top: 2.25rem;
+            }
+
+            .summary p {
+                font-size: 1.05rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-actions">
+                <a href="index.html" class="pill-btn">Back to Profile</a>
+                <a href="kb-build.html" class="pill-btn">Back to KB-Build</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+
+        <article class="card">
+            <header class="hero">
+                <div class="title-wrap">
+                    <p>White Paper: Local Game Intelligence on iOS</p>
+                    <h1>Building Intelligent AI Pip for Corebound</h1>
+                </div>
+
+                <section class="summary">
+                    <div class="eyebrow">Summary</div>
+                    <p>
+                        Corebound began with Pip as a lightweight assistant shell: a SwiftUI chat surface, a small
+                        deterministic fallback, and Apple Intelligence used as an optional editorial layer. Through
+                        iterative testing, Pip evolved into a local game intelligence system. The final architecture
+                        keeps SwiftData as the canonical game state, builds a local SQLite FTS search index for
+                        retrieval, routes player questions into deterministic mechanics intents, and sends Apple
+                        Intelligence only bounded, verified context when editorial narration is appropriate.
+                    </p>
+                </section>
+            </header>
+
+            <div class="article-body">
+                <section class="section cyan">
+                    <h2>Starting Point</h2>
+                    <p>
+                        Pip started as a global assistant overlay attached to the native SwiftUI app. The first version
+                        could read a compact `PipGameContext`, hand that context to Apple's FoundationModels APIs when
+                        available, and fall back to deterministic Swift text when Apple Intelligence failed. This was
+                        enough for flavor, but not enough for reliable game help.
+                    </p>
+
+                    <div class="comparison" aria-label="Starting and ending architecture comparison">
+                        <div class="before-after">
+                            <h3>Initial architecture</h3>
+                            <p>
+                                SwiftData persisted the game. SwiftUI showed the chat. `PipGameChatService` built a
+                                response from broad screen facts, recent archive records, and a generic FoundationModels
+                                prompt. It was useful for atmosphere, but weak at precise mechanics and yes/no answers.
+                            </p>
+                        </div>
+                        <div class="before-after">
+                            <h3>Observed failure mode</h3>
+                            <p>
+                                Pip sometimes meandered, answered adjacent mechanics, dumped raw current state, or used
+                                Apple Intelligence for questions that should have been deterministic. The assistant
+                                needed a verified retrieval layer and intent-aware routing before prose generation.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section blue">
+                    <h2>Final Architecture</h2>
+                    <p>
+                        The new system separates truth, retrieval, routing, and editorialization. SwiftData remains the
+                        source of truth. SQLite FTS is a local secondary index. The router decides when a question is a
+                        mechanics query, action audit, next move, memory editorial request, or general screen question.
+                        Apple Intelligence is used only after deterministic systems have bounded the context.
+                    </p>
+
+                    <div class="infographic" aria-label="Pip intelligence architecture flow">
+                        <div class="flow-node">
+                            <div class="flow-label">Truth</div>
+                            <span class="flow-title">SwiftData Game State</span>
+                            <span class="flow-text">Player, bots, missions, discoveries, memories, projects, guild,
+                                prestige, inventory, and entitlements.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">Context</div>
+                            <span class="flow-title">PipGameContext</span>
+                            <span class="flow-text">Builds live facts, action audits, spending context, entitlement
+                                context, archive items, and search documents.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">Retrieve</div>
+                            <span class="flow-title">SQLite FTS5</span>
+                            <span class="flow-text">Indexes mechanics and live records locally so Pip can retrieve
+                                relevant facts without scanning the whole archive.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">Route</div>
+                            <span class="flow-title">Question Intents</span>
+                            <span class="flow-text">Classifies mechanics, availability, next action, spending,
+                                memory, guild, project, item, store, and general questions.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">Answer</div>
+                            <span class="flow-title">Deterministic + Apple</span>
+                            <span class="flow-text">Swift answers rules and state. Apple Intelligence adds concise
+                                editorial synthesis when useful.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section emerald">
+                    <h2>What Changed</h2>
+                    <div class="steps">
+                        <div class="step">
+                            <h3>1. Pip stopped treating every question as prose generation</h3>
+                            <p>
+                                Questions like "Can bots be upgraded directly?", "Does Discovery Momentum cap?", and
+                                "What should I focus on next?" now bypass Apple Intelligence and resolve through local
+                                Swift logic. That keeps answers precise, short, and inspectable.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>2. Mechanics became router-level intents</h3>
+                            <p>
+                                The routing layer now recognizes mechanics intents such as mission success chance,
+                                Discovery Momentum caps, Data Pack use, Premium benefits, Jockey level cost, bot direct
+                                upgrades, Memory Archive unlocks, and Guild automation requirements. This is more
+                                durable than wiring one-off Q&amp;A pairs.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>3. Retrieval became local and bounded</h3>
+                            <p>
+                                `PipSearchIndexService` mirrors SwiftData-derived documents into SQLite FTS5. It indexes
+                                mechanics, memories, discoveries, archive summaries, bots, missions, opportunities,
+                                projects, items, Pip caches, guild state, rivals, logs, and Prestige. Search results are
+                                ranked locally before any generative step.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>4. Apple Intelligence became an editorial layer</h3>
+                            <p>
+                                FoundationModels now receives verified facts, local mechanics records, FTS-ranked hits,
+                                relevant archive records, and a small rolling Pip memory. It is asked to synthesize,
+                                not invent. Deterministic fallbacks remain mandatory.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section violet">
+                    <h2>iOS And Apple Intelligence Notes</h2>
+                    <p>
+                        The app remains local-first. SwiftUI owns the interface, SwiftData owns persistence, StoreKit 2
+                        owns subscription testing, and FoundationModels is optional. Pip must work even when Apple
+                        Intelligence is unavailable, unsupported in the simulator, or unable to answer. That constraint
+                        pushed the architecture toward deterministic game services first and generative narration
+                        second.
+                    </p>
+
+                    <div class="stack-grid">
+                        <div class="stack-card">
+                            <h3>SwiftUI</h3>
+                            <p>Pip appears as a global chat overlay that can answer across Core, Console, Projects,
+                                Guild, and Items without owning those screens.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>SwiftData</h3>
+                            <p>All game state remains local and canonical. The search index is disposable and can be
+                                rebuilt from SwiftData-derived context.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>SQLite FTS5</h3>
+                            <p>The local index improves relevance as archives grow, especially for memories,
+                                discoveries, items, and mechanics lookup.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>FoundationModels</h3>
+                            <p>Apple Intelligence is used for concise editorialization, memory synthesis, and natural
+                                phrasing after local retrieval and routing.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section slate">
+                    <h2>Implementation Notes</h2>
+                    <p>
+                        The most important implementation decision was to make the assistant testable. Pip's intelligence
+                        now lives in small services rather than inside the SwiftUI overlay.
+                    </p>
+
+                    <div class="command-group">
+                        <div class="command-title">Core services</div>
+                        <pre><code>PipQuestionRouter
+PipGameContextService
+PipGameChatService
+PipKnowledgeBase
+PipSearchIndexService
+PipMemoryPersistenceService</code></pre>
+                    </div>
+
+                    <div class="command-group">
+                        <div class="command-title">Answer flow</div>
+                        <pre><code>User question
+  -> normalize and classify route
+  -> resolve deterministic mechanics/action questions
+  -> refresh SQLite FTS index if context changed
+  -> retrieve bounded local search hits
+  -> optionally call FoundationModels with verified context
+  -> persist daily chat summary locally</code></pre>
+                    </div>
+
+                    <div class="command-group">
+                        <div class="command-title">Verification loop</div>
+                        <pre><code>Ask targeted Pip questions
+Check deterministic answer quality
+Patch routing intent, not one-off prose, when possible
+Build for iPhone simulator
+Retest the same questions plus nearby variants</code></pre>
+                    </div>
+                </section>
+
+                <section class="section cyan">
+                    <h2>Result</h2>
+                    <p>
+                        Pip moved from a charming chat overlay to a local game intelligence layer. It can answer
+                        mechanics, audit available actions, recommend next steps, retrieve archive context, and use
+                        Apple Intelligence for higher-quality memory editorialization. The final lesson is simple:
+                        reliable in-game AI does not start with a bigger prompt. It starts with trusted state, explicit
+                        routing, bounded retrieval, and a clear line between deterministic truth and generative prose.
+                    </p>
+                </section>
+
+                <p class="footer-note">
+                    Prepared as a one-page technical white paper for the Corebound Pip assistant build. No backend or
+                    external image assets are required for this document.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        const themeKey = 'theme';
+
+        function isTheme(value) {
+            return value === 'light' || value === 'dark';
+        }
+
+        function getThemeCookie() {
+            const match = document.cookie.split('; ').find((row) => row.startsWith(`${themeKey}=`));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        function setThemeCookie(theme) {
+            const oneYear = 60 * 60 * 24 * 365;
+            const baseCookie = `${themeKey}=${encodeURIComponent(theme)}; Max-Age=${oneYear}; Path=/; SameSite=Lax`;
+            const hostname = window.location.hostname;
+            const canShareAcrossSubdomains = hostname === 'miin.ai' || hostname.endsWith('.miin.ai');
+            document.cookie = canShareAcrossSubdomains ? `${baseCookie}; Domain=.miin.ai` : baseCookie;
+        }
+
+        function getSavedTheme() {
+            const cookieTheme = getThemeCookie();
+            const localTheme = localStorage.getItem(themeKey);
+            return isTheme(cookieTheme) ? cookieTheme : isTheme(localTheme) ? localTheme : null;
+        }
+
+        function saveTheme(theme) {
+            localStorage.setItem(themeKey, theme);
+            setThemeCookie(theme);
+        }
+
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const currentTheme = getSavedTheme() || (prefersDarkScheme.matches ? "dark" : "light");
+        saveTheme(currentTheme);
+
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light Mode';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            saveTheme(newTheme);
+
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        });
+    </script>
+</body>
+
+</html>
