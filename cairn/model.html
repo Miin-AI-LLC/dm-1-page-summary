@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cairn Model Terms | Miin AI</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #374151;
+            --heading-color: #111827;
+            --card-bg: #ffffff;
+            --accent-color: #2563eb;
+            --border-color: #e5e7eb;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --text-color: #d1d5db;
+            --heading-color: #f9fafb;
+            --card-bg: #1f2937;
+            --accent-color: #3b82f6;
+            --border-color: #374151;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 860px;
+            width: 100%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle,
+        .nav-link {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            outline: none;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            text-decoration: none;
+        }
+
+        .theme-toggle:hover,
+        .nav-link:hover,
+        .theme-toggle:focus-visible,
+        .nav-link:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 3.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .eyebrow {
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            color: var(--heading-color);
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            margin-bottom: 2rem;
+            max-width: 650px;
+        }
+
+        .meta {
+            color: var(--accent-color);
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2.5rem;
+        }
+
+        section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            margin-top: 2rem;
+        }
+
+        h2 {
+            color: var(--heading-color);
+            font-size: 1.25rem;
+            margin-bottom: 0.85rem;
+            font-weight: 700;
+        }
+
+        p {
+            margin-bottom: 1.25rem;
+            font-size: 1.075rem;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        a:hover,
+        a:focus-visible {
+            text-decoration: underline;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            padding: 0.875rem 1.75rem;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: opacity 0.2s, transform 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .contact-btn:hover,
+        .contact-btn:focus-visible {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .contact-btn.secondary {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .contact-btn.secondary:hover,
+        .contact-btn.secondary:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../index.html" class="nav-link">Back to miin.ai</a>
+            <div class="header-actions">
+                <a href="privacy.html" class="nav-link">Privacy Policy</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Dark Mode">
+                    <span id="theme-icon">🌙</span> <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </div>
+
+        <main class="card">
+            <div class="eyebrow">Cairn</div>
+            <h1>Model Terms</h1>
+            <p class="subtitle">
+                These terms apply when a user enables Cairn's optional local Gemma model download.
+            </p>
+            <p class="meta">Effective date: July 9, 2026</p>
+
+            <section>
+                <h2>Agreement</h2>
+                <p>
+                    By enabling the local model download, the user agrees to these Cairn Model Terms and to the
+                    applicable Google Gemma terms and policies for the downloaded model.
+                </p>
+            </section>
+
+            <section>
+                <h2>Gemma Notice</h2>
+                <p>
+                    Gemma is provided under and subject to the
+                    <a href="https://ai.google.dev/gemma/terms" target="_blank" rel="noopener noreferrer">Gemma Terms of Use</a>.
+                </p>
+            </section>
+
+            <section>
+                <h2>Use Restrictions</h2>
+                <p>
+                    The user must not use, reproduce, modify, distribute, or operate Gemma in a manner prohibited by the
+                    applicable Gemma Terms of Use or
+                    <a href="https://ai.google.dev/gemma/prohibited_use_policy" target="_blank" rel="noopener noreferrer">Gemma Prohibited Use Policy</a>.
+                    Those policies are incorporated into these terms by reference and are enforceable conditions of using
+                    Cairn's local model feature.
+                </p>
+            </section>
+
+            <section>
+                <h2>Wellness-Only Use</h2>
+                <p>
+                    Cairn provides general wellness reflection from local data. It does not diagnose, treat, prescribe,
+                    recommend medication changes, or provide emergency triage. Cairn is not a substitute for
+                    professional medical care or emergency services.
+                </p>
+            </section>
+
+            <section>
+                <h2>Model Availability</h2>
+                <p>
+                    The local model is a large download and requires compatible device storage and network access. Cairn
+                    verifies the downloaded file before installation. The user may delete the model at any time.
+                </p>
+            </section>
+
+            <section>
+                <h2>Support</h2>
+                <p>
+                    For questions about these terms, contact Miin AI LLC at
+                    <a href="mailto:daniel@miin.ai">daniel@miin.ai</a>.
+                </p>
+            </section>
+
+            <div class="actions-group">
+                <a href="privacy.html" class="contact-btn">Read Privacy Policy</a>
+                <a href="../index.html" class="contact-btn secondary">Back to miin.ai</a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        const themeKey = 'theme';
+
+        function isTheme(value) {
+            return value === 'light' || value === 'dark';
+        }
+
+        function getThemeCookie() {
+            const match = document.cookie.split('; ').find((row) => row.startsWith(`${themeKey}=`));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        function setThemeCookie(theme) {
+            const oneYear = 60 * 60 * 24 * 365;
+            const baseCookie = `${themeKey}=${encodeURIComponent(theme)}; Max-Age=${oneYear}; Path=/; SameSite=Lax`;
+            const hostname = window.location.hostname;
+            const canShareAcrossSubdomains = hostname === 'miin.ai' || hostname.endsWith('.miin.ai');
+            document.cookie = canShareAcrossSubdomains ? `${baseCookie}; Domain=.miin.ai` : baseCookie;
+        }
+
+        function getSavedTheme() {
+            const cookieTheme = getThemeCookie();
+            const localTheme = localStorage.getItem(themeKey);
+            return isTheme(cookieTheme) ? cookieTheme : isTheme(localTheme) ? localTheme : null;
+        }
+
+        function saveTheme(theme) {
+            localStorage.setItem(themeKey, theme);
+            setThemeCookie(theme);
+        }
+
+        const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+        const currentTheme = getSavedTheme() || (prefersDarkScheme.matches ? "dark" : "light");
+        saveTheme(currentTheme);
+
+        if (currentTheme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeIcon.textContent = '☀️';
+            themeText.textContent = 'Light Mode';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            let theme = document.documentElement.getAttribute('data-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            saveTheme(newTheme);
+
+            if (newTheme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark Mode';
+            }
+        });
+    </script>
+</body>
+
+</html>
