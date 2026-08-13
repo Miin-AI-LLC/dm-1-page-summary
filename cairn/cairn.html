@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A technical white paper on Cairn Grove, a private, on-device Apple Health companion powered by Gemma and LiteRT-LM.">
+    <meta name="theme-color" content="#f3f4f6">
+    <title>Building Cairn Grove | Miin AI</title>
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #374151;
+            --heading-color: #111827;
+            --card-bg: #ffffff;
+            --accent-color: #0f766e;
+            --accent-blue: #2563eb;
+            --border-color: #e5e7eb;
+            --muted-color: #6b7280;
+            --soft-teal: rgba(15, 118, 110, 0.08);
+            --soft-blue: rgba(37, 99, 235, 0.08);
+            --soft-green: rgba(22, 163, 74, 0.08);
+            --soft-amber: rgba(245, 158, 11, 0.1);
+            --soft-violet: rgba(124, 58, 237, 0.08);
+            --soft-slate: rgba(100, 116, 139, 0.1);
+            --code-bg: #111827;
+            --code-text: #e5e7eb;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #111827;
+            --text-color: #d1d5db;
+            --heading-color: #f9fafb;
+            --card-bg: #1f2937;
+            --accent-color: #5eead4;
+            --accent-blue: #60a5fa;
+            --border-color: #374151;
+            --muted-color: #9ca3af;
+            --soft-teal: rgba(45, 212, 191, 0.12);
+            --soft-blue: rgba(59, 130, 246, 0.13);
+            --soft-green: rgba(34, 197, 94, 0.12);
+            --soft-amber: rgba(251, 191, 36, 0.12);
+            --soft-violet: rgba(167, 139, 250, 0.12);
+            --soft-slate: rgba(148, 163, 184, 0.12);
+            --code-bg: #030712;
+            --code-text: #f3f4f6;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            justify-content: center;
+            line-height: 1.7;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1040px;
+            width: 100%;
+        }
+
+        .header {
+            align-items: center;
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-actions,
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .pill-btn,
+        .theme-toggle {
+            align-items: center;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: var(--text-color);
+            cursor: pointer;
+            display: inline-flex;
+            font-size: 0.875rem;
+            font-weight: 600;
+            gap: 0.5rem;
+            outline: none;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+        }
+
+        .pill-btn:hover,
+        .pill-btn:focus-visible,
+        .theme-toggle:hover,
+        .theme-toggle:focus-visible {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .pill-btn.primary {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .pill-btn.primary {
+            color: #052e2b;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .hero {
+            border-bottom: 1px solid var(--border-color);
+            padding: 3.25rem 3.5rem 2.75rem;
+        }
+
+        .hero-grid {
+            align-items: center;
+            display: grid;
+            gap: 2.5rem;
+            grid-template-columns: minmax(0, 1fr) 176px;
+        }
+
+        .app-icon {
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            display: block;
+            height: 176px;
+            object-fit: cover;
+            width: 176px;
+        }
+
+        .title-wrap h1 {
+            color: var(--heading-color);
+            font-size: 2.35rem;
+            font-weight: 850;
+            letter-spacing: -0.025em;
+            line-height: 1.15;
+        }
+
+        .title-wrap > p {
+            color: var(--accent-color);
+            font-size: 0.92rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .summary {
+            margin-top: 1.5rem;
+            max-width: 780px;
+        }
+
+        .summary p {
+            color: var(--heading-color);
+            font-size: 1.17rem;
+            line-height: 1.75;
+            margin-bottom: 0;
+        }
+
+        .hero-actions {
+            margin-top: 1.4rem;
+        }
+
+        .article-body {
+            padding: 0 3.5rem 3.5rem;
+        }
+
+        .eyebrow {
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: var(--heading-color);
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            margin-bottom: 0.75rem;
+        }
+
+        h3 {
+            color: var(--heading-color);
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0;
+            margin-bottom: 0.35rem;
+        }
+
+        p {
+            font-size: 1.04rem;
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: var(--accent-blue);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        a:hover,
+        a:focus-visible {
+            text-decoration: underline;
+        }
+
+        .section {
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-top: 1.35rem;
+            padding: 1.5rem;
+        }
+
+        .section.teal { background: var(--soft-teal); }
+        .section.blue { background: var(--soft-blue); }
+        .section.green { background: var(--soft-green); }
+        .section.amber { background: var(--soft-amber); }
+        .section.violet { background: var(--soft-violet); }
+        .section.slate { background: var(--soft-slate); }
+
+        .infographic {
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            display: grid;
+            gap: 0.85rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 1.25rem;
+            padding: 1rem;
+        }
+
+        .flow-node {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            min-height: 150px;
+            padding: 0.9rem;
+            position: relative;
+        }
+
+        .flow-label {
+            color: var(--accent-color);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+        }
+
+        .flow-title {
+            color: var(--heading-color);
+            display: block;
+            font-size: 0.96rem;
+            font-weight: 800;
+            line-height: 1.3;
+        }
+
+        .flow-text {
+            color: var(--muted-color);
+            display: block;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            margin-top: 0.45rem;
+        }
+
+        .stack-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .stack-card {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        [data-theme="dark"] .stack-card {
+            background: rgba(17, 24, 39, 0.35);
+        }
+
+        .stack-card p:last-child,
+        .step p:last-child,
+        .principle p:last-child {
+            margin-bottom: 0;
+        }
+
+        .steps {
+            display: grid;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .step {
+            border-left: 3px solid var(--accent-color);
+            padding-left: 1rem;
+        }
+
+        .private-note {
+            align-items: flex-start;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 10px;
+            display: grid;
+            gap: 0.45rem;
+            margin-top: 1.1rem;
+            padding: 1rem 1.1rem;
+        }
+
+        .private-note strong {
+            color: var(--heading-color);
+        }
+
+        .private-note p {
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .boundary {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .principle {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .principle .label {
+            color: var(--accent-color);
+            font-size: 0.75rem;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+        }
+
+        .evidence-key {
+            display: grid;
+            gap: 0.8rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        .evidence-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .evidence-id {
+            align-items: center;
+            background: var(--soft-blue);
+            border: 1px solid var(--border-color);
+            border-radius: 9999px;
+            color: var(--accent-blue);
+            display: inline-flex;
+            font-size: 0.8rem;
+            font-weight: 850;
+            height: 2rem;
+            justify-content: center;
+            margin-bottom: 0.6rem;
+            min-width: 2rem;
+            padding: 0 0.65rem;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin-top: 1rem;
+        }
+
+        figure {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        figure img {
+            background: #f5f5f7;
+            display: block;
+            height: auto;
+            width: 100%;
+        }
+
+        figcaption {
+            border-top: 1px solid var(--border-color);
+            color: var(--muted-color);
+            font-size: 0.82rem;
+            line-height: 1.45;
+            padding: 0.8rem;
+        }
+
+        .references {
+            display: grid;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .reference {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.95rem 1rem;
+        }
+
+        .reference span {
+            color: var(--muted-color);
+            display: block;
+            font-size: 0.88rem;
+            line-height: 1.45;
+            margin-top: 0.25rem;
+        }
+
+        .footer-note {
+            border-top: 1px solid var(--border-color);
+            color: var(--muted-color);
+            font-size: 0.95rem;
+            margin-top: 2.5rem;
+            padding-top: 1.5rem;
+        }
+
+        @media (max-width: 860px) {
+            .infographic,
+            .screenshot-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero-grid {
+                grid-template-columns: minmax(0, 1fr) 132px;
+            }
+
+            .app-icon {
+                border-radius: 24px;
+                height: 132px;
+                width: 132px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .hero,
+            .article-body {
+                padding-left: 1.35rem;
+                padding-right: 1.35rem;
+            }
+
+            .hero {
+                padding-top: 2.25rem;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .app-icon {
+                grid-row: 1;
+                height: 104px;
+                width: 104px;
+            }
+
+            .title-wrap h1 {
+                font-size: 1.85rem;
+            }
+
+            .summary p {
+                font-size: 1.05rem;
+            }
+
+            .infographic,
+            .stack-grid,
+            .boundary,
+            .evidence-key,
+            .screenshot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <nav class="header" aria-label="Page navigation">
+            <div class="header-actions">
+                <a href="../index.html" class="pill-btn">Back to miin.ai</a>
+                <a href="privacy.html" class="pill-btn">Privacy</a>
+                <a href="model.html" class="pill-btn">Model Terms</a>
+                <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+                    <span id="theme-icon" aria-hidden="true">◐</span>
+                    <span id="theme-text">Dark Mode</span>
+                </button>
+            </div>
+        </nav>
+
+        <article class="card">
+            <header class="hero">
+                <div class="hero-grid">
+                    <div>
+                        <div class="title-wrap">
+                            <p>White Paper: Private On-Device Wellness AI</p>
+                            <h1>Building Cairn Grove</h1>
+                        </div>
+
+                        <section class="summary">
+                            <div class="eyebrow">Summary</div>
+                            <p>
+                                Cairn Grove is a native iPhone app that turns user-selected Apple Health observations
+                                into private, conversational wellness reflections. It summarizes HealthKit data on the
+                                device, retrieves reviewed local evidence, and uses an instruction-tuned Gemma model
+                                through LiteRT-LM. Health data, prompts, and model output stay on the iPhone; the model
+                                is downloaded only after the user gives permission.
+                            </p>
+                        </section>
+
+                        <div class="hero-actions">
+                            <a class="pill-btn primary" href="https://apps.apple.com/us/app/cairn-grove/id6783987950" rel="noopener noreferrer">View on the App Store</a>
+                            <a class="pill-btn" href="#architecture">Explore the architecture</a>
+                        </div>
+                    </div>
+
+                    <img class="app-icon" src="assets/cairn-grove-app-icon.png" alt="Cairn Grove app icon">
+                </div>
+            </header>
+
+            <div class="article-body">
+                <section class="section teal">
+                    <h2>The Product</h2>
+                    <p>
+                        The app combines a configurable Health dashboard with a collapsible local-chat sheet. Users
+                        decide which Apple Health categories Cairn Grove may request and which available trends appear
+                        as tiles. Questions can start from a tile or free-form chat, and natural follow-ups retain a
+                        bounded window of conversation context.
+                    </p>
+                    <p>
+                        The experience is deliberately reflective rather than clinical. Cairn Grove can summarize
+                        patterns, compare recent periods, and explain reviewed general-wellness context. It does not
+                        diagnose, prescribe, recommend medication changes, or replace professional or emergency care.
+                    </p>
+
+                    <div class="private-note">
+                        <strong>Private source code</strong>
+                        <p>
+                            Cairn Grove is proprietary software. This paper documents the product boundaries and
+                            system architecture without publishing production prompts, routing rules, validation
+                            thresholds, integrity values, repository structure, or source code.
+                        </p>
+                    </div>
+                </section>
+
+                <section class="section blue" id="architecture">
+                    <h2>System Architecture</h2>
+                    <p>
+                        The design separates permission, data retrieval, evidence, inference, and verification. Gemma
+                        is the language layer, not the system of record: Apple Health supplies user data, the bundled
+                        evidence library supplies reviewed general context, and app code decides what may be displayed.
+                    </p>
+
+                    <div class="infographic" aria-label="Cairn Grove system architecture flow">
+                        <div class="flow-node">
+                            <div class="flow-label">1. Consent</div>
+                            <span class="flow-title">User-selected Health access</span>
+                            <span class="flow-text">HealthKit permissions and in-app category choices establish the readable local scope.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">2. Retrieve</div>
+                            <span class="flow-title">Bounded HealthKit queries</span>
+                            <span class="flow-text">Short, metric-specific reads gather only the values needed for a dashboard refresh or question.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">3. Summarize</div>
+                            <span class="flow-title">Local health context</span>
+                            <span class="flow-text">Samples become concise values, recent points, and descriptive period-over-period trends.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">4. Ground</div>
+                            <span class="flow-title">Reviewed evidence packet</span>
+                            <span class="flow-text">Relevant local observations, reviewed claims, and methodology references receive scoped citation IDs.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">5. Generate</div>
+                            <span class="flow-title">Gemma through LiteRT-LM</span>
+                            <span class="flow-text">A serialized on-device session receives a bounded prompt and produces a local draft.</span>
+                        </div>
+                        <div class="flow-node">
+                            <div class="flow-label">6. Verify</div>
+                            <span class="flow-title">Citation and safety checks</span>
+                            <span class="flow-text">Unsupported claims, mismatched data, invented values, and malformed citations are repaired or withheld.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section green">
+                    <h2>Tech Stack</h2>
+                    <p>
+                        Cairn Grove is built as a local-first iOS application. The production system keeps the app UI,
+                        data preparation, inference, validation, diagnostics, and model lifecycle within the native app
+                        boundary.
+                    </p>
+
+                    <div class="stack-grid">
+                        <div class="stack-card">
+                            <h3>Application</h3>
+                            <p>Swift, SwiftUI, structured concurrency, native accessibility, and an iOS 17+ deployment target.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>Health Data</h3>
+                            <p>Apple HealthKit permissions, bounded statistics and sample queries, local summaries, and configurable trend tiles.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>Local Model</h3>
+                            <p>Gemma 4 E2B instruction-tuned QAT model in LiteRT-LM format, provisioned after installation.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>Inference Runtime</h3>
+                            <p>Google AI Edge LiteRT-LM for on-device model loading, conversation state, and streamed generation.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>Storage &amp; Networking</h3>
+                            <p>App-owned model storage, a background-capable URL session, model verification, and user-controlled deletion.</p>
+                        </div>
+                        <div class="stack-card">
+                            <h3>Quality</h3>
+                            <p>XCTest, signed simulator UI tests, real-model regression prompts, network-scope checks, and physical-device acceptance.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section violet">
+                    <h2>Connecting Gemma with LiteRT-LM</h2>
+                    <p>
+                        Shipping a multi-gigabyte model inside the App Store binary would make every installation and
+                        update unnecessarily heavy. Cairn Grove instead separates the app from the model: the app is
+                        installed first, explains the local-AI boundary, and downloads the approved Gemma artifact only
+                        when the user chooses to continue.
+                    </p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <h3>1. Provision after consent</h3>
+                            <p>
+                                A pinned model artifact is downloaded with progress and recovery support, verified,
+                                then moved into app-owned persistent storage. The retained model survives ordinary app
+                                updates and can be deleted from the Privacy screen.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>2. Initialize lazily</h3>
+                            <p>
+                                LiteRT-LM does not prepare the native engine during launch or model installation. The
+                                runtime is created only when generation is needed, reducing startup pressure and keeping
+                                provisioning failures separate from inference failures.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>3. Serialize inference</h3>
+                            <p>
+                                One generation owns the native session at a time. Cancellation, timeouts, retry state,
+                                and streamed output are coordinated behind a single lifecycle boundary to protect a
+                                memory-intensive local runtime from overlapping requests.
+                            </p>
+                        </div>
+                        <div class="step">
+                            <h3>4. Budget the prompt</h3>
+                            <p>
+                                HealthKit values are converted to concise observations before inference. Recent
+                                conversation, retrieved evidence, the current question, and output capacity share a
+                                fixed context budget; older conversation is compacted when necessary.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p>
+                        This integration uses the official <a href="https://github.com/google-ai-edge/LiteRT-LM" rel="noopener noreferrer">LiteRT-LM project</a>
+                        and a Gemma model subject to Google's <a href="https://ai.google.dev/gemma/terms" rel="noopener noreferrer">Gemma Terms of Use</a>.
+                        Cairn Grove does not use a remote inference fallback.
+                    </p>
+                </section>
+
+                <section class="section amber">
+                    <h2>Local Evidence Library &amp; Citations</h2>
+                    <p>
+                        A useful wellness answer needs more than fluent model output. Cairn Grove bundles a versioned,
+                        human-reviewed evidence library containing exact statements, publishers, applicability notes,
+                        limits, review dates, and direct source URLs. Retrieval selects only the entries relevant to the
+                        current question and available local observations.
+                    </p>
+
+                    <div class="evidence-key" aria-label="Cairn Grove citation identifiers">
+                        <div class="evidence-item">
+                            <span class="evidence-id">S</span>
+                            <h3>Reviewed source</h3>
+                            <p>A fixed general-wellness statement from an authoritative publisher.</p>
+                        </div>
+                        <div class="evidence-item">
+                            <span class="evidence-id">D</span>
+                            <h3>Your local data</h3>
+                            <p>A concise observation calculated from the user's readable HealthKit values.</p>
+                        </div>
+                        <div class="evidence-item">
+                            <span class="evidence-id">M</span>
+                            <h3>Methodology</h3>
+                            <p>The disclosed method used to calculate a descriptive trend or comparison.</p>
+                        </div>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            <h3>Retrieval before generation</h3>
+                            <p>Gemma receives only a compact evidence packet selected for the question; it does not search the web or generate source URLs.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Claim-level verification</h3>
+                            <p>General guidance must cite a matching S item, user-specific statements must cite D data, and calculated trends must cite M methodology.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Fail closed</h3>
+                            <p>The app can attempt one local repair of an unsupported draft. If verification still fails, the answer is withheld rather than shown without support.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Inspectability</h3>
+                            <p>Inline citation controls reveal the exact reviewed statement or local observation, while a permanent Transparency view exposes the prompt, raw output, and validation result.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section teal">
+                    <h2>Privacy Architecture</h2>
+                    <p>
+                        Privacy is a runtime constraint, not only a policy statement. Cairn Grove is designed so that
+                        the most sensitive path never needs a cloud service.
+                    </p>
+
+                    <div class="boundary">
+                        <div class="principle">
+                            <div class="label">Stays on the iPhone</div>
+                            <h3>HealthKit reads and summaries</h3>
+                            <p>Raw samples are queried locally and reduced to concise values before prompting. Raw HealthKit JSON is not sent to Gemma or a server.</p>
+                        </div>
+                        <div class="principle">
+                            <div class="label">Stays on the iPhone</div>
+                            <h3>Questions, context, and answers</h3>
+                            <p>Conversation context, evidence retrieval, Gemma inference, citation validation, and diagnostics remain local.</p>
+                        </div>
+                        <div class="principle">
+                            <div class="label">Network is narrowly scoped</div>
+                            <h3>User-approved model download</h3>
+                            <p>The model file is downloaded only after permission. That request does not include HealthKit values or chat content.</p>
+                        </div>
+                        <div class="principle">
+                            <div class="label">Network is user initiated</div>
+                            <h3>External source links</h3>
+                            <p>Reviewed publisher pages open only after the user taps a link, without attaching health data, prompts, or model output.</p>
+                        </div>
+                    </div>
+
+                    <p>
+                        Read the public <a href="privacy.html">Privacy Policy</a> and <a href="model.html">Model Terms</a>
+                        for the product's user-facing commitments.
+                    </p>
+                </section>
+
+                <section class="section blue">
+                    <h2>Development Journey</h2>
+                    <p>
+                        Cairn Grove reached production through repeated real-model, HealthKit, UI, and App Store review
+                        cycles. Several engineering decisions came directly from failures observed in those cycles.
+                    </p>
+
+                    <div class="steps">
+                        <div class="step">
+                            <h3>Model delivery moved outside the app bundle</h3>
+                            <p>User-approved post-install provisioning reduced the App Store payload while preserving an offline runtime after setup.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Build dependencies became reproducible</h3>
+                            <p>Large binary framework resolution was isolated from normal builds, with a local package path used to keep Xcode and Xcode Cloud archives deterministic.</p>
+                        </div>
+                        <div class="step">
+                            <h3>HealthKit access became bounded and explicit</h3>
+                            <p>Broad launch-time reads were replaced by user-initiated refreshes, question-specific retrieval, bounded time windows, and progressive dashboard loading.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Conversation gained controlled memory</h3>
+                            <p>Recent exchanges remain verbatim while older context is compacted, allowing natural follow-ups without letting stale topics crowd out relevant Health data.</p>
+                        </div>
+                        <div class="step">
+                            <h3>Citations became an acceptance gate</h3>
+                            <p>App Review feedback accelerated the move from source footers to claim-level citation validation, local repair, and transparent withholding.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section slate" id="screens">
+                    <h2>Product Screens</h2>
+                    <p>
+                        These screens were prepared for Apple review and show the permission boundary, local Health
+                        surface, methodology disclosure, evidence catalog, and citation-grounded answer flow.
+                    </p>
+
+                    <div class="screenshot-grid">
+                        <figure>
+                            <img src="assets/cairn-health-overview.png" alt="Cairn Grove Health screen showing local summary and navigation" loading="lazy">
+                            <figcaption>Selected HealthKit categories are summarized locally and remain user controlled.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/cairn-health-consent.png" alt="Cairn Grove Health permission entry screen" loading="lazy">
+                            <figcaption>A neutral consent step precedes Apple's Health permission sheet.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/cairn-methodology.png" alt="Cairn Grove Sources and Methodology screen" loading="lazy">
+                            <figcaption>The app explains its 7-day comparison method and non-diagnostic boundary.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/cairn-source-library.png" alt="Cairn Grove reviewed source catalog" loading="lazy">
+                            <figcaption>Reviewed references include scope, limitations, publisher, link, and review date.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="assets/cairn-cited-answer.png" alt="Cairn Grove answer with inline reviewed and local-data citations" loading="lazy">
+                            <figcaption>A displayed answer links each general claim and local observation to its supporting evidence.</figcaption>
+                        </figure>
+                    </div>
+                </section>
+
+                <section class="section green">
+                    <h2>Selected Technical References</h2>
+                    <p>
+                        Cairn Grove's implementation and local evidence library use primary platform documentation and
+                        reviewed public-health sources. The in-app catalog contains the exact claim-level coverage and
+                        limitations used at runtime.
+                    </p>
+
+                    <div class="references">
+                        <div class="reference">
+                            <a href="https://developer.apple.com/documentation/healthkit" rel="noopener noreferrer">Apple HealthKit documentation</a>
+                            <span>Health data authorization, types, queries, and platform privacy behavior.</span>
+                        </div>
+                        <div class="reference">
+                            <a href="https://developer.apple.com/documentation/healthkit/hkstatisticscollectionquery" rel="noopener noreferrer">Apple HKStatisticsCollectionQuery</a>
+                            <span>Underlying statistics-query behavior used by the disclosed descriptive trend method.</span>
+                        </div>
+                        <div class="reference">
+                            <a href="https://github.com/google-ai-edge/LiteRT-LM" rel="noopener noreferrer">Google AI Edge LiteRT-LM</a>
+                            <span>On-device large-language-model runtime and iOS integration framework.</span>
+                        </div>
+                        <div class="reference">
+                            <a href="https://ai.google.dev/gemma" rel="noopener noreferrer">Google Gemma documentation</a>
+                            <span>Model family documentation, responsible-use material, and licensing resources.</span>
+                        </div>
+                    </div>
+                </section>
+
+                <p class="footer-note">
+                    Cairn Grove is a general-wellness reflection app, not a medical device. Architecture and product
+                    behavior are summarized here for transparency; production source code and implementation details
+                    remain private. Gemma is a general-purpose model and may produce incomplete or inaccurate drafts,
+                    which is why Cairn Grove applies local evidence, citation, safety, and display checks before an
+                    answer reaches the user.
+                </p>
+            </div>
+        </article>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        const themeText = document.getElementById('theme-text');
+        const themeKey = 'theme';
+
+        function isTheme(value) {
+            return value === 'light' || value === 'dark';
+        }
+
+        function getThemeCookie() {
+            const match = document.cookie.split('; ').find((row) => row.startsWith(`${themeKey}=`));
+            return match ? decodeURIComponent(match.split('=')[1]) : null;
+        }
+
+        function setThemeCookie(theme) {
+            const oneYear = 60 * 60 * 24 * 365;
+            const baseCookie = `${themeKey}=${encodeURIComponent(theme)}; Max-Age=${oneYear}; Path=/; SameSite=Lax`;
+            const hostname = window.location.hostname;
+            const canShareAcrossSubdomains = hostname === 'miin.ai' || hostname.endsWith('.miin.ai');
+            document.cookie = canShareAcrossSubdomains ? `${baseCookie}; Domain=.miin.ai` : baseCookie;
+        }
+
+        function getSavedTheme() {
+            const cookieTheme = getThemeCookie();
+            const localTheme = localStorage.getItem(themeKey);
+            return isTheme(cookieTheme) ? cookieTheme : isTheme(localTheme) ? localTheme : null;
+        }
+
+        function saveTheme(theme) {
+            localStorage.setItem(themeKey, theme);
+            setThemeCookie(theme);
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '◑';
+                themeText.textContent = 'Light Mode';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.textContent = '◐';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const currentTheme = getSavedTheme() || (prefersDarkScheme.matches ? 'dark' : 'light');
+        saveTheme(currentTheme);
+        applyTheme(currentTheme);
+
+        toggleBtn.addEventListener('click', () => {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const newTheme = theme === 'dark' ? 'light' : 'dark';
+            saveTheme(newTheme);
+            applyTheme(newTheme);
+        });
+    </script>
+</body>
+
+</html>
