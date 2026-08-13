@@ -8,8 +8,9 @@ Static personal website for `miin.ai`. This repo owns the public profile site, s
 - Knowledge search app: <https://kb.miin.ai/>
 - Knowledge base build note: <https://miin.ai/kb-build.html>
 - Apple Intelligence build note: <https://miin.ai/apple-intelligence.html>
-- Cairn privacy policy: <https://miin.ai/cairn/privacy.html>
-- Cairn model terms: <https://miin.ai/cairn/model.html>
+- Cairn Grove technical white paper: <https://miin.ai/cairn/cairn.html>
+- Cairn Grove privacy policy: <https://miin.ai/cairn/privacy.html>
+- Cairn Grove model terms: <https://miin.ai/cairn/model.html>
 
 GitHub Pages serves this static site from `main` using the custom domain in `CNAME`.
 
@@ -22,8 +23,10 @@ GitHub Pages serves this static site from `main` using the custom domain in `CNA
 - `mentoring-founders.html` - health tech founder funding-readiness guide with a downloadable diligence checklist and transaction tombstone gallery.
 - `kb-build.html` - white paper on building `kb.miin.ai`, including the current Firebase-backed architecture and earlier Vercel/Supabase tradeoffs.
 - `apple-intelligence.html` - white paper on building Intelligent AI Pip for Corebound with local iOS game intelligence and Apple Intelligence as an editorial layer.
-- `cairn/privacy.html` - public Cairn privacy policy for App Store review and user support.
-- `cairn/model.html` - public Cairn local model terms, including Gemma terms references.
+- `cairn/cairn.html` - technical white paper on Cairn Grove's private HealthKit, local Gemma, LiteRT-LM, and citation architecture.
+- `cairn/privacy.html` - public Cairn Grove privacy policy for App Store review and user support.
+- `cairn/model.html` - public Cairn Grove local model terms, including Gemma terms references.
+- `cairn/assets/` - Cairn Grove app icon and Apple-review screenshots used by the white paper.
 - `assets/dan-slides/` - slide images and OCR JSON for the bio page.
 - `assets/tombstones/` - transaction tombstone images used by the founder mentoring page.
 - `assets/mentoring-founders/` - downloadable founder resources, including the representative diligence checklist.
