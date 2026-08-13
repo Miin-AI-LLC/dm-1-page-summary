@@ -530,7 +530,7 @@
                 <a href="privacy.html" class="pill-btn">Privacy</a>
                 <a href="model.html" class="pill-btn">Model Terms</a>
                 <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
-                    <span id="theme-icon" aria-hidden="true">◐</span>
+                    <span id="theme-icon" aria-hidden="true">🌙</span>
                     <span id="theme-text">Dark Mode</span>
                 </button>
             </div>
@@ -941,11 +941,11 @@
         function applyTheme(theme) {
             if (theme === 'dark') {
                 document.documentElement.setAttribute('data-theme', 'dark');
-                themeIcon.textContent = '◑';
+                themeIcon.textContent = '☀️';
                 themeText.textContent = 'Light Mode';
             } else {
                 document.documentElement.removeAttribute('data-theme');
-                themeIcon.textContent = '◐';
+                themeIcon.textContent = '🌙';
                 themeText.textContent = 'Dark Mode';
             }
         }
